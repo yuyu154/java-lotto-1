@@ -67,6 +67,7 @@ public class WebUILottoApplication {
         return render(model, "main.html");
     }
 
+    // TODO 회차당 정보
     private static String renderTurnInfo(final LottoService service, final Request req) {
         Map<String, Object> model = new HashMap<>();
         int turn = Integer.parseInt(req.params("index"));
@@ -94,6 +95,7 @@ public class WebUILottoApplication {
         return render(model, "lotto_shopping.html");
     }
 
+    //TODO Lotto List
     private static String renderLottos(final LottoService service, final Request req) {
         Map<String, Object> model = new HashMap<>();
 
@@ -114,6 +116,7 @@ public class WebUILottoApplication {
         return Arrays.asList(origin.split(SENTENCE_DELIMITER));
     }
 
+    //TODO 결과
     private static String renderResult(final LottoService service, final Request req) {
         Map<String, Object> model = new HashMap<>();
 
@@ -122,21 +125,21 @@ public class WebUILottoApplication {
         WinningLotto winningLotto = WinningLotto.of(lotto, lottoNumber);
         addWinningLotto(winningLotto);
 
-        GameResult gameResult = service.gameResult();
-        gameResult.match(winningLotto);
-        model.put("profit", stringifyProfit(gameResult));
-        model.put("stat", stringifyResult(convertResultToDto(gameResult)));
-        addGameResult(gameResult);
+        GameResultMatcher gameResultMatcher = service.gameResult();     //TODO. 여기서 Matcher를 만들고 (service에서 반환X)
+        gameResultMatcher.match(winningLotto);                          //match 수행한다
+        model.put("profit", stringifyProfit(gameResultMatcher));
+        model.put("stat", stringifyResult(convertResultToDto(gameResultMatcher)));
+        addGameResult(gameResultMatcher);                               //TODO GameResultService 객체에 메시지 보내기
 
         return render(model, "result.html");
     }
 
-    private static void addGameResult(GameResult gameResult) {
-        GameResultDao.getInstance().add(convertResultToDto(gameResult), findNextTurn());
+    private static void addGameResult(GameResultMatcher gameResultMatcher) {
+        GameResultDao.getInstance().add(convertResultToDto(gameResultMatcher), findNextTurn());
     }
 
-    private static GameResultDto convertResultToDto(GameResult gameResult) {
-        return GameResultDto.of(gameResult);
+    private static GameResultDto convertResultToDto(GameResultMatcher gameResultMatcher) {
+        return GameResultDto.of(gameResultMatcher);
     }
 
     private static void addWinningLotto(final WinningLotto winningLotto) {
@@ -151,8 +154,8 @@ public class WebUILottoApplication {
         return new LottoParser().parseLotto(winninglotto);
     }
 
-    private static String stringifyProfit(GameResult gameResult) {
-        return String.format("%.1f", gameResult.profit(LottoMachine.LOTTO_MONEY));
+    private static String stringifyProfit(GameResultMatcher gameResultMatcher) {
+        return String.format("%.1f", gameResultMatcher.profit(LottoMachine.LOTTO_MONEY));
     }
 
     private static List<String> stringifyResult(final GameResultDto result) {

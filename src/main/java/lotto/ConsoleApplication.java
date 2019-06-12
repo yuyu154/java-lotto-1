@@ -20,9 +20,9 @@ public class ConsoleApplication {
 
 		OutputView.showLottos(service.getLottos());
 		WinningLotto winningLotto = assignWinningLotto();
-		GameResult gameResult = service.gameResult();
-		gameResult.match(winningLotto);
-		OutputView.showGameResult(gameResult);
+		GameResultMatcher gameResultMatcher = service.gameResult();
+		gameResultMatcher.match(winningLotto);
+		OutputView.showGameResult(gameResultMatcher);
 		deleteInfo(service);
 	}
 
